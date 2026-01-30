@@ -15,4 +15,14 @@ class TaskService
     {
         return Task::create($data);
     }
+    public function updateTask(Task $task, array $data) 
+{
+    $task->update($data);
+    return $task;
+}
+
+public function deleteTask(Task $task) 
+{
+    return $task->delete();
+}
 }
