@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\TaskService;
+use App\Models\Task; // This tells the controller where the Task model is
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -10,7 +11,6 @@ class TaskController extends Controller
 {
     protected $taskService;
 
-    // We "Inject" the Service here
     public function __construct(TaskService $taskService)
     {
         $this->taskService = $taskService;
@@ -24,15 +24,29 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
-        // Basic validation as requested
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
         $task = $this->taskService->createTask($validated);
-        
-        // Return JSON with "201 Created" status code
         return response()->json($task, Response::HTTP_CREATED);
+    }
+
+    public function update(Request $request, Task $task)
+    {
+        $validated = $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'is_completed' => 'boolean',
+        ]);
+
+        $updatedTask = $this->taskService->updateTask($task, $validated);
+        return response()->json($updatedTask, Response::HTTP_OK);
+    }
+
+    public function destroy(Task $task)
+    {
+        $this->taskService->deleteTask($task);
+        return response()->json(null, Response::HTTP_NO_CONTENT); 
     }
 }
